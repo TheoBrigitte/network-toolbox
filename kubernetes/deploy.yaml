@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: network-toolbox
+  name: network-toolbox
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: network-toolbox
+  template:
+    metadata:
+      labels:
+        app: network-toolbox
+    spec:
+      containers:
+      - image: theo01/network-toolbox
+        name: network-toolbox
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "50Mi"
+        securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add: ["NET_ADMIN"]
+          privileged: true
+          runAsUser: 0
+      hostNetwork: true
+      serviceAccount: network-toolbox
+      tolerations:
+      - operator: Exists
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: network-toolbox
+spec:
+  allowPrivilegeEscalation: true
+  allowedCapabilities:
+  - '*'
+  fsGroup:
+    rule: RunAsAny
+  hostIPC: true
+  hostNetwork: true
+  hostPID: true
+  hostPorts:
+  - max: 65536
+    min: 1
+  privileged: true
+  runAsUser:
+    rule: RunAsAny
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  volumes:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: network-toolbox
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - network-toolbox
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: network-toolbox
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: network-toolbox
+subjects:
+- kind: ServiceAccount
+  name: network-toolbox
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: network-toolbox
+  namespace: kube-system
