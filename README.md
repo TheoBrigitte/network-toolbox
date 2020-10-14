@@ -33,8 +33,22 @@ podsecuritypolicy.policy/network-toolbox created
 clusterrole.rbac.authorization.k8s.io/network-toolbox created
 clusterrolebinding.rbac.authorization.k8s.io/network-toolbox created
 serviceaccount/network-toolbox created
+
+$ kubectl -n=kube-system get po -lapp=network-toolbox
+NAME                    READY   STATUS    RESTARTS   AGE
+network-toolbox-24hrt   1/1     Running   0          3s
+network-toolbox-frl4j   1/1     Running   0          3s
+network-toolbox-hqm8m   1/1     Running   0          3s
+
 $ kubectl -n=kube-system exec -it network-toolbox-24hrt -- bash
-bash-5.0#
+bash-5.0# # do your troubleshooting here
+
+$ kubectl delete -f https://raw.githubusercontent.com/TheoBrigitte/network-toolbox/master/kubernetes/deploy.yaml
+daemonset.apps "network-toolbox" deleted
+podsecuritypolicy.policy "network-toolbox" deleted
+clusterrole.rbac.authorization.k8s.io "network-toolbox" deleted
+clusterrolebinding.rbac.authorization.k8s.io "network-toolbox" deleted
+serviceaccount "network-toolbox" deleted
 ```
 
 Via Docker
